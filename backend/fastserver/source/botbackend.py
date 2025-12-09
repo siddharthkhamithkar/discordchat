@@ -17,4 +17,4 @@ def create_user(payload: UserCreateRequest):
         email_id=payload.email_id,
         country_code=payload.country_code,
         phone_number=payload.phone_number,
-    )a
+    )
