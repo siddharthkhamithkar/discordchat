@@ -1,0 +1,6 @@
+discord.py==2.3.2
+aiohttp==3.13.2
+python-dotenv==1.2.1
+openai==1.68.1
+fastapi
+uvicorn
