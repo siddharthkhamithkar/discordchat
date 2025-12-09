@@ -27,6 +27,9 @@ async def on_message(message):
         return
 
     if message.mentions:
+        if await openai_start_outfit_flow(message):
+            await show_typing_and_send(message, "It was great helping you find your style! Feel free to reach out anytime for more fashion advice. Have a wonderful day!")
+
         #await userCreationFlow(message)
         await openai_start_outfit_flow(message)
 
@@ -101,54 +104,59 @@ async def userCreationFlow(message):
 #OUTFIT FLOW WITH GROQ OPENAI API
 
 async def openai_start_outfit_flow(message):
-
-    genai_trigger = True
-
-    groq_api_key = os.getenv('GROQ_API_KEY')
-    if groq_api_key is None:
-        raise ValueError("GROQ_API_KEY environment variable is not set")
     
-    groq = OpenAI(
-        api_key=groq_api_key, 
-        base_url="https://api.groq.com/openai/v1"
-    )
+    try:
 
-    conversation_history = [
-    {"role": "user", "content": "you are a helpful assistant that helps people find clothing styles that suit them best. You will ask them one liner questions, and base the rest of your questions based on their response. Ask one question at a time. Limit yourself to 5-10 questions based on clues provided by the user before suggesting clothing. provide your suggestions in a concise manner as a oneliner. Get the user's feedback and act on it before closing the conversation. return the response as a JSON object with two keys: 'message' which contains the message to the user, and 'end_conversation' which is true if the conversation is to be ended, false otherwise. Remember to end the conversation after providing suggestions and getting feedback. Provide the end trigger at the next message where the user provides their consent that they are ok with the suggestions privided by you."},
-    ]
+        genai_trigger = True
 
-    def build_input_from_history(history):
-        conversation_text = ""
-        for msg in history:
-            conversation_text += f"{msg['role'].capitalize()}: {msg['content']}\n"
-        return conversation_text
-
-    while genai_trigger:
-        # Call Groq API
-        response = groq.responses.create(
-            model="openai/gpt-oss-20b",
-            input=build_input_from_history(conversation_history)
+        groq_api_key = os.getenv('GROQ_API_KEY')
+        if groq_api_key is None:
+            raise ValueError("GROQ_API_KEY environment variable is not set")
+        
+        groq = OpenAI(
+            api_key=groq_api_key, 
+            base_url="https://api.groq.com/openai/v1"
         )
 
-        # Parse response, separate "messaage" from "end_conversation"
-        raw_reply = response.output_text
-        parsed = json.loads(raw_reply)
+        conversation_history = [
+        {"role": "user", "content": "you are a helpful assistant that helps people find clothing styles that suit them best. You will ask them one liner questions, and base the rest of your questions based on their response. Ask one question at a time. Limit yourself to 5-10 questions based on clues provided by the user before suggesting clothing. provide your suggestions in a concise manner as a oneliner. Get the user's feedback and act on it before closing the conversation. return the response as a JSON object with two keys: 'message' which contains the message to the user, and 'end_conversation' which is true if the conversation is to be ended, false otherwise. Remember to end the conversation after providing suggestions and getting feedback. Provide the end trigger at the next message where the user provides their consent that they are ok with the suggestions privided by you."},
+        ]
+
+        def build_input_from_history(history):
+            conversation_text = ""
+            for msg in history:
+                conversation_text += f"{msg['role'].capitalize()}: {msg['content']}\n"
+            return conversation_text
+
+        while genai_trigger:
+            # Call Groq API
+            response = groq.responses.create(
+                model="openai/gpt-oss-20b",
+                input=build_input_from_history(conversation_history)
+            )
+
+            # Parse response, separate "messaage" from "end_conversation"
+            raw_reply = response.output_text
+            parsed = json.loads(raw_reply)
 
 
-        # Update history
-        assistant_reply = parsed.get('message')
-        genai_trigger = not parsed.get('end_conversation')
-        conversation_history.append({"role": "assistant", "content": assistant_reply})
+            # Update history
+            assistant_reply = parsed.get('message')
+            genai_trigger = not parsed.get('end_conversation')
+            conversation_history.append({"role": "assistant", "content": assistant_reply})
 
-        await show_typing_and_send(message, f"{assistant_reply}")
-        
-        user_input = await get_user_reply(message)
-        if user_input is False:
-            break
-        conversation_history.append({"role": "user", "content": user_input})
+            await show_typing_and_send(message, f"{assistant_reply}")
+            
+            user_input = await get_user_reply(message)
+            if user_input is False:
+                break
+            conversation_history.append({"role": "user", "content": user_input})
 
-    await show_typing_and_send(message, "It was great helping you find your style! Feel free to reach out anytime for more fashion advice. Have a wonderful day!")
-
+        return True
+    except Exception as e:
+        await message.channel.send("Sorry, I encountered an error while trying to assist you.")
+        print(f"Error in openai_start_outfit_flow: {e}")
+        return False
 
 
 #MAIN BOT RUNNER
