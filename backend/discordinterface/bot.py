@@ -27,8 +27,8 @@ async def on_message(message):
         return
 
     if message.mentions:
-        #await userCreationFlow(message)
-        await openai_start_outfit_flow(message)
+        await userCreationFlow(message)
+        #await openai_start_outfit_flow(message)
 
 #HELPER FUNCTIONS
 
@@ -88,7 +88,7 @@ async def userCreationFlow(message):
                     await show_typing_and_send(message, f"You're all set! Welcome aboard, {data['name']}!")
                     await show_typing_and_send(message, "Shall we get you the perfect outfit?")
                     user_input = await get_user_reply(message)
-                    if (user_input.lower() in ['yes', 'y', 'sure', 'yeah']):
+                    if user_input and user_input.lower() in ['yes', 'y', 'sure', 'yeah']:
                         await show_typing_and_send(message, "Awesome! Let's get started on finding your perfect style!")
                         await openai_start_outfit_flow(message)
                 else:
@@ -102,72 +102,78 @@ async def userCreationFlow(message):
 
 async def openai_start_outfit_flow(message):
 
-    genai_trigger = True
+    try:
 
-    groq_api_key = os.getenv('GROQ_API_KEY')
-    if groq_api_key is None:
-        raise ValueError("GROQ_API_KEY environment variable is not set")
-    
-    groq = OpenAI(
-        api_key=groq_api_key, 
-        base_url="https://api.groq.com/openai/v1",
-    )
+        genai_trigger = True
 
-    conversation_history = [
-    {"role": "user", "content": "you are a helpful assistant for a seamstress that helps people find clothing styles that suit them best. You will strictly ask about clothing only, not footwear or accessories. You will ask them one liner questions, and base the rest of your questions based on their response. Ask one question at a time. Limit yourself to 5-10 questions based on clues provided by the user before suggesting clothing. provide your suggestions in a concise manner as a oneliner. Get the user's feedback and act on it before closing the conversation. At the end, please also ask the user for required measurements if they have access to the measurements, let the user respond with things such as 'not sure' and 'i can do this when i meet you', if the user does not wish to share it right now, don't push them to share it. If they say no once, don't ask for it again. Return the response as a JSON object with two keys: 'message' which contains the message to the user, and 'end_conversation' which is true if the conversation is to be ended, false otherwise. Remember to end the conversation after providing suggestions and getting feedback. Provide the end trigger at the next message where the user provides their consent that they are ok with the suggestions privided by you, do not wait for the user to send another message before triggering end_conversation."},
-    {"role": "user", "content": "I am ready to find my perfect outfit!"},
-    ]
+        groq_api_key = os.getenv('GROQ_API_KEY')
+        if groq_api_key is None:
+            raise ValueError("GROQ_API_KEY environment variable is not set")
+        
+        groq = OpenAI(
+            api_key=groq_api_key, 
+            base_url="https://api.groq.com/openai/v1",
+        )
 
-    def build_input_from_history(history):
-        conversation_text = """Return your response **strictly as a JSON object** in this format:
-        {
-            "message": "<text of the assistant reply>",
-            "end_conversation": true/false
-        }
+        conversation_history = [
+        {"role": "user", "content": "you are a helpful assistant for a seamstress that helps people find clothing styles that suit them best. You will strictly ask about clothing only, not footwear or accessories. You will ask them one liner questions, and base the rest of your questions based on their response. Ask one question at a time. Limit yourself to 5-10 questions based on clues provided by the user before suggesting clothing. provide your suggestions in a concise manner as a oneliner. Get the user's feedback and act on it before closing the conversation. At the end, please also ask the user for required measurements if they have access to the measurements, let the user respond with things such as 'not sure' and 'i can do this when i meet you', if the user does not wish to share it right now, don't push them to share it. If they say no once, don't ask for it again. Return the response as a JSON object with two keys: 'message' which contains the message to the user, and 'end_conversation' which is true if the conversation is to be ended, false otherwise. Remember to end the conversation after providing suggestions and getting feedback. Provide the end trigger at the next message where the user provides their consent that they are ok with the suggestions privided by you, do not wait for the user to send another message before triggering end_conversation."},
+        {"role": "user", "content": "I am ready to find my perfect outfit!"},
+        ]
 
-        Do not include any other text. Do not use tools. Do not include "name" or "arguments".
-        """
-        for msg in history:
-            conversation_text += f"{msg['role'].capitalize()}: {msg['content']}\n"
-        return conversation_text
+        def build_input_from_history(history):
+            conversation_text = """Return your response **strictly as a JSON object** in this format:
+            {
+                "message": "<text of the assistant reply>",
+                "end_conversation": true/false
+            }
 
-    while genai_trigger:
-        # Call Groq API
+            Do not include any other text. Do not use tools. Do not include "name" or "arguments".
+            """
+            for msg in history:
+                conversation_text += f"{msg['role'].capitalize()}: {msg['content']}\n"
+            return conversation_text
+
+        while genai_trigger:
+            # Call Groq API
+            response = groq.responses.create(
+                model="openai/gpt-oss-20b",
+                input=build_input_from_history(conversation_history)
+            )
+
+            # Parse response, separate "messaage" from "end_conversation"
+            raw_reply = response.output_text
+            parsed = json.loads(raw_reply)
+
+
+            # Update history
+            assistant_reply = parsed.get('message')
+            genai_trigger = not parsed.get('end_conversation')
+            conversation_history.append({"role": "assistant", "content": assistant_reply})
+
+            await show_typing_and_send(message, f"{assistant_reply}")
+            
+            user_input = await get_user_reply(message)
+            if user_input is False:
+                break
+            conversation_history.append({"role": "user", "content": user_input})
+
+        #return JSON summary of the conversation
+        conversation_history.append({"role": "user", "content": "Ignore the previously described JSON format. Please provide a summary of our conversation in the following JSON format: {\"outfit\": \"<summary of the outfit suggestions and measurements discussed>\", \"size\": \"<summary of the size and measurements discussed, return as an array of different measurements as keys, if the user is not sure of their measurements or wants the seamstress to measure then, mark accordingly>\"}"})
         response = groq.responses.create(
             model="openai/gpt-oss-20b",
             input=build_input_from_history(conversation_history)
         )
-
-        # Parse response, separate "messaage" from "end_conversation"
         raw_reply = response.output_text
         parsed = json.loads(raw_reply)
 
+        print("FINAL SUMMARY:", parsed)
 
-        # Update history
-        assistant_reply = parsed.get('message')
-        genai_trigger = not parsed.get('end_conversation')
-        conversation_history.append({"role": "assistant", "content": assistant_reply})
-
-        await show_typing_and_send(message, f"{assistant_reply}")
-        
-        user_input = await get_user_reply(message)
-        if user_input is False:
-            break
-        conversation_history.append({"role": "user", "content": user_input})
-
-    #return JSON summary of the conversation
-    conversation_history.append({"role": "user", "content": "Ignore the previously described JSON format. Please provide a summary of our conversation in the following JSON format: {\"outfit\": \"<summary of the outfit suggestions and measurements discussed>\", \"size\": \"<summary of the size and measurements discussed, return as an array of different measurements as keys, if the user is not sure of their measurements or wants the seamstress to measure then, mark accordingly>\"}"})
-    response = groq.responses.create(
-        model="openai/gpt-oss-20b",
-        input=build_input_from_history(conversation_history)
-    )
-    raw_reply = response.output_text
-    parsed = json.loads(raw_reply)
-
-    print("FINAL SUMMARY:", parsed)
-
-    await show_typing_and_send(message, "It was great having a chat with you! Feel free to reach out anytime for more fashion advice. Have a wonderful day!")
-
+        await show_typing_and_send(message, "It was great having a chat with you! Feel free to reach out anytime for more fashion advice. Have a wonderful day!")
+        return True
+    
+    except Exception as e:
+        await message.channel.send("Oops! Something went wrong during the outfit selection process. Please try again later.")
+        return False
 
 
 #MAIN BOT RUNNER
