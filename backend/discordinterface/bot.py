@@ -12,17 +12,17 @@ load_dotenv()
 intents = discord.Intents.default()
 intents.message_content = True
 
-client = discord.Client(intents=intents)
+discord_client = discord.Client(intents=intents)
 
 API_URL = os.getenv('API_URL', 'http://localhost:8000/')
 
-@client.event
+@discord_client.event
 async def on_ready():
-    print(f'We have logged in as {client.user}')
+    print(f'We have logged in as {discord_client.user}')
 
-@client.event
+@discord_client.event
 async def on_message(message):
-    if message.author == client.user:
+    if message.author == discord_client.user:
         return
 
     if message.content.startswith('n!hello'):
@@ -40,7 +40,7 @@ async def userCreationFlow(message):
 
     try:
        # Collect name
-        reply = await client.wait_for(
+        reply = await discord_client.wait_for(
             'message',
             timeout=30,
             check=lambda m: m.author == message.author and m.channel == message.channel,
@@ -51,7 +51,7 @@ async def userCreationFlow(message):
 
         # Collect email
         await show_typing_and_send(message, 1, "What's your name?")
-        reply = await client.wait_for(
+        reply = await discord_client.wait_for(
             'message',
             timeout=30,
             check=lambda m: m.author == message.author and m.channel == message.channel,
@@ -60,7 +60,7 @@ async def userCreationFlow(message):
 
         # Collect Phone Number
         await show_typing_and_send(message, 1, f"Great! Nice to meet you, {user_name}! What's your Country Code?")
-        reply = await client.wait_for(
+        reply = await discord_client.wait_for(
             'message',
             timeout=30,
             check=lambda m: m.author == message.author and m.channel == message.channel,
@@ -68,7 +68,7 @@ async def userCreationFlow(message):
         user_countrycode = reply.content.strip()
 
         await show_typing_and_send(message, 1, "What's your Phone Number?")
-        reply = await client.wait_for(
+        reply = await discord_client.wait_for(
             'message',
             timeout=30,
             check=lambda m: m.author == message.author and m.channel == message.channel,
@@ -88,7 +88,7 @@ async def userCreationFlow(message):
                     print(data)
                     await show_typing_and_send(message, .5, f"You're all set! Welcome aboard, {data['name']}!")
                     await show_typing_and_send(message, .5, "Shall we get you the perfect outfit?")
-                    reply = await client.wait_for(
+                    reply = await discord_client.wait_for(
                         'message',
                         timeout=30,
                         check=lambda m: m.author == message.author and m.channel == message.channel,
@@ -111,7 +111,7 @@ async def openai_start_outfit_flow(message):
     if groq_api_key is None:
         raise ValueError("GROQ_API_KEY environment variable is not set")
     
-    client = OpenAI(
+    groq = OpenAI(
         api_key=groq_api_key, 
         base_url="https://api.groq.com/openai/v1"
     )
@@ -128,7 +128,7 @@ async def openai_start_outfit_flow(message):
 
     while True:
         # Call Groq API
-        response = client.responses.create(
+        response = groq.responses.create(
             model="openai/gpt-oss-20b",
             input=build_input_from_history(conversation_history)
         )
@@ -138,7 +138,7 @@ async def openai_start_outfit_flow(message):
 
         await show_typing_and_send(message, .5, f"{assistant_reply}")
         
-        reply = await client.wait_for(
+        reply = await discord_client.wait_for(
             'message',
             timeout=30,
             check=lambda m: m.author == message.author and m.channel == message.channel,
@@ -151,4 +151,4 @@ discord_token = os.getenv('DISCORD_TOKEN')
 if discord_token is None:
     raise ValueError("DISCORD_TOKEN environment variable is not set")
 
-client.run(discord_token)
+discord_client.run(discord_token)
