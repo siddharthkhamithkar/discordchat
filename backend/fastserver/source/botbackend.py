@@ -18,3 +18,4 @@ def create_user(payload: UserCreateRequest):
         country_code=payload.country_code,
         phone_number=payload.phone_number,
     )
+a
