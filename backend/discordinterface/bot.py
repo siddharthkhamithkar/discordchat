@@ -47,8 +47,8 @@ async def get_user_reply(message):
         return reply.content
 
     except asyncio.TimeoutError:
-        await message.channel.send("⏳ I didn’t get a response. Let’s try again later!")
-        return None
+        await message.channel.send("I didn’t get a response. Let’s try again later!")
+        return False
 
 #USER CREATION FLOW
 
@@ -143,6 +143,8 @@ async def openai_start_outfit_flow(message):
         await show_typing_and_send(message, f"{assistant_reply}")
         
         user_input = await get_user_reply(message)
+        if user_input is False:
+            break
         conversation_history.append({"role": "user", "content": user_input})
 
     await show_typing_and_send(message, "It was great helping you find your style! Feel free to reach out anytime for more fashion advice. Have a wonderful day!")
