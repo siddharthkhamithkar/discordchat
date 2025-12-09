@@ -87,16 +87,17 @@ async def userCreationFlow(message):
                     data = await response.json()
                     print(data)
                     await show_typing_and_send(message, .5, f"You're all set! Welcome aboard, {data['name']}!")
+                    await show_typing_and_send(message, .5, "Shall we get you the perfect outfit?")
+                    if (message.content.lower() in ['yes', 'y', 'sure', 'yeah']):
+                        await show_typing_and_send(message, 1, "Awesome! Let's get started on finding your perfect style!")
+                        await openai_start_outfit_flow(message)
                 else:
                     await message.channel.send(f"API call failed with status {response.status}")
     except Exception as exc:  # Log unexpected failures for debugging
         await message.channel.send('Failed to reach the API. Please try again later.')
         print(f'API error: {exc}')
 
-    await show_typing_and_send(message, .5, "Shall we get you the perfect outfit?")
-    if (message.content.lower() in ['yes', 'y', 'sure', 'yeah']):
-        await show_typing_and_send(message, 1, "Awesome! Let's get started on finding your perfect style!")
-        await openai_start_outfit_flow(message)
+    
 
 async def openai_start_outfit_flow(message):
 
