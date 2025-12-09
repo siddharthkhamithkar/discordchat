@@ -109,7 +109,7 @@ async def openai_start_outfit_flow(message):
     )
 
     conversation_history = [
-    {"role": "user", "content": "you are a helpful assistant that helps people find clothing styles that suit them best. You will ask them one liner questions, and base the rest of your questions based on their response. Ask one question at a time. Limit yourself to 5 questions before suggesting clothing. provide your suggestions in a concise manner as a oneliner. Get the user's feedback and act on it before closing the conversation. return the response as a JSON object with two keys: 'message' which contains the message to the user, and 'end_conversation' which is true if the conversation is to be ended, false otherwise."},
+    {"role": "user", "content": "you are a helpful assistant that helps people find clothing styles that suit them best. You will ask them one liner questions, and base the rest of your questions based on their response. Ask one question at a time. Limit yourself to 5 questions before suggesting clothing. provide your suggestions in a concise manner as a oneliner. Get the user's feedback and act on it before closing the conversation. return the response as a JSON object with two keys: 'message' which contains the message to the user, and 'end_conversation' which is true if the conversation is to be ended, false otherwise. Remember to end the conversation after providing suggestions and getting feedback."},
     ]
 
     def build_input_from_history(history):
@@ -137,6 +137,8 @@ async def openai_start_outfit_flow(message):
         
         user_input = await get_user_reply(message)
         conversation_history.append({"role": "user", "content": user_input})
+
+    await show_typing_and_send(message, .5, "It was great helping you find your style! Feel free to reach out anytime for more fashion advice. Have a wonderful day!")
 
 
 
