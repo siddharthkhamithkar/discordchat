@@ -174,8 +174,7 @@ async def openai_start_outfit_flow(message):
         
         raise Exception("Conversation did not end as expected.")
     except Exception as e:
-        await message.channel.send("Oops! Something went wrong during the outfit selection process. Please try again later.")
-        return False
+        pass
 
 
 #MAIN BOT RUNNER
