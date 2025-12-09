@@ -119,7 +119,14 @@ async def openai_start_outfit_flow(message):
     ]
 
     def build_input_from_history(history):
-        conversation_text = ""
+        conversation_text = """Return your response **strictly as a JSON object** in this format:
+        {
+            "message": "<text of the assistant reply>",
+            "end_conversation": true/false
+        }
+
+        Do not include any other text. Do not use tools. Do not include "name" or "arguments".
+        """
         for msg in history:
             conversation_text += f"{msg['role'].capitalize()}: {msg['content']}\n"
         return conversation_text
