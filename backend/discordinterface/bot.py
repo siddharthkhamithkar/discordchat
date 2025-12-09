@@ -110,9 +110,10 @@ async def openai_start_outfit_flow(message):
     groq_api_key = os.getenv('GROQ_API_KEY')
     if groq_api_key is None:
         raise ValueError("GROQ_API_KEY environment variable is not set")
+    
     client = OpenAI(
-    api_key=groq_api_key,
-    base_url="https://api.groq.com/openai/v1",
+        api_key=groq_api_key, 
+        base_url="https://api.groq.com/openai/v1"
     )
 
     conversation_history = [
