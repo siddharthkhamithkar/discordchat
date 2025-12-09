@@ -26,7 +26,7 @@ async def on_message(message):
     if message.author == discord_client.user:
         return
 
-    if message.content.mentions:
+    if message.mentions:
         #await userCreationFlow(message)
         await openai_start_outfit_flow(message)
 
