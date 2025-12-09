@@ -26,7 +26,7 @@ async def on_message(message):
     if message.author == discord_client.user:
         return
 
-    if message.content.startswith('n!hello'):
+    if message.content.mentions(discord_client.user):
         #await userCreationFlow(message)
         await openai_start_outfit_flow(message)
 
@@ -109,7 +109,7 @@ async def openai_start_outfit_flow(message):
     )
 
     conversation_history = [
-    {"role": "user", "content": "you are a helpful assistant that helps people find clothing styles that suit them best. You will ask them one liner questions, and base the rest of your questions based on their response. Ask one question at a time. Limit yourself to 5-10 questions based on clues provided by the user before suggesting clothing. provide your suggestions in a concise manner as a oneliner. Get the user's feedback and act on it before closing the conversation. return the response as a JSON object with two keys: 'message' which contains the message to the user, and 'end_conversation' which is true if the conversation is to be ended, false otherwise. Remember to end the conversation after providing suggestions and getting feedback. Provide the end trigger at the next message where the user provides their consent that they are ok with the suggestions."},
+    {"role": "user", "content": "you are a helpful assistant that helps people find clothing styles that suit them best. You will ask them one liner questions, and base the rest of your questions based on their response. Ask one question at a time. Limit yourself to 5-10 questions based on clues provided by the user before suggesting clothing. provide your suggestions in a concise manner as a oneliner. Get the user's feedback and act on it before closing the conversation. return the response as a JSON object with two keys: 'message' which contains the message to the user, and 'end_conversation' which is true if the conversation is to be ended, false otherwise. Remember to end the conversation after providing suggestions and getting feedback. Provide the end trigger at the next message where the user provides their consent that they are ok with the suggestions privided by you."},
     ]
 
     def build_input_from_history(history):
