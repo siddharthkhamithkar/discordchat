@@ -88,8 +88,14 @@ async def userCreationFlow(message):
                     print(data)
                     await show_typing_and_send(message, .5, f"You're all set! Welcome aboard, {data['name']}!")
                     await show_typing_and_send(message, .5, "Shall we get you the perfect outfit?")
-                    if (message.content.lower() in ['yes', 'y', 'sure', 'yeah']):
-                        await show_typing_and_send(message, 1, "Awesome! Let's get started on finding your perfect style!")
+                    reply = await client.wait_for(
+                        'message',
+                        timeout=30,
+                        check=lambda m: m.author == message.author and m.channel == message.channel,
+                    )
+                    user_input = reply.content.strip() 
+                    if (user_input.lower() in ['yes', 'y', 'sure', 'yeah']):
+                        await show_typing_and_send(message, .5, "Awesome! Let's get started on finding your perfect style!")
                         await openai_start_outfit_flow(message)
                 else:
                     await message.channel.send(f"API call failed with status {response.status}")
