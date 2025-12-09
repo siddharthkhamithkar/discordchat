@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from models import NameRequest, UserCreateRequest
+from models import NameRequest, UserCreateRequest, UserCreateResponse
 app = FastAPI()
 
 
@@ -7,13 +7,13 @@ app = FastAPI()
 def echo_name(payload: NameRequest):
     return {"name": payload.name}
 
-@app.post("/createUser")
+@app.post("/createUser", response_model=UserCreateResponse)
 def create_user(payload: UserCreateRequest):
     # Placeholder implementation
     print(payload)
-    return {
-    "status": "User created",
-    "name": payload.name,
-    "email_id": payload.email_id,
-    "dob": payload.dob.isoformat() 
-}
+    return UserCreateResponse(
+        status="User created",
+        name=payload.name,
+        email_id=payload.email_id,
+        dob=payload.dob
+    )

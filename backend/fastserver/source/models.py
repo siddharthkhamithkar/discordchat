@@ -13,3 +13,9 @@ class UserCreateRequest(BaseModel):
     def parse_dob(cls, v):
         # User inputs dd/mm/yyyy
         return datetime.strptime(v, "%d/%m/%Y").date()
+
+class UserCreateResponse(BaseModel):
+    status: str
+    name: str
+    email_id: str
+    dob: date
