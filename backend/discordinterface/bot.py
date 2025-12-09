@@ -38,12 +38,17 @@ async def show_typing_and_send(message, message_content):
     await message.channel.send(message_content)
 
 async def get_user_reply(message):
-    reply = await discord_client.wait_for(
-        'message',
-        timeout=30,
-        check=lambda m: m.author == message.author and m.channel == message.channel,
-    )
-    return reply.content.strip()
+    try:
+        reply = await discord_client.wait_for(
+            'message',
+            timeout=30,
+            check=lambda m: m.author == message.author and m.channel == message.channel,
+        )
+        return reply.content
+
+    except asyncio.TimeoutError:
+        await message.channel.send("⏳ I didn’t get a response. Let’s try again later!")
+        return None
 
 #USER CREATION FLOW
 
