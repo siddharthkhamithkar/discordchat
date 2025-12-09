@@ -114,7 +114,8 @@ async def openai_start_outfit_flow(message):
     )
 
     conversation_history = [
-    {"role": "user", "content": "you are a helpful assistant that helps people find clothing styles that suit them best. You will ask them one liner questions, and base the rest of your questions based on their response. Ask one question at a time. Limit yourself to 5-10 questions based on clues provided by the user before suggesting clothing. provide your suggestions in a concise manner as a oneliner. Get the user's feedback and act on it before closing the conversation. return the response as a JSON object with two keys: 'message' which contains the message to the user, and 'end_conversation' which is true if the conversation is to be ended, false otherwise. Remember to end the conversation after providing suggestions and getting feedback. Provide the end trigger at the next message where the user provides their consent that they are ok with the suggestions privided by you."},
+    {"role": "user", "content": "you are a helpful assistant for a seamstress that helps people find clothing styles that suit them best. You will strictly ask about clothing only, not footwear or accessories. You will ask them one liner questions, and base the rest of your questions based on their response. Ask one question at a time. Limit yourself to 5-10 questions based on clues provided by the user before suggesting clothing. provide your suggestions in a concise manner as a oneliner. Get the user's feedback and act on it before closing the conversation. At the end, please also ask the user for required measurements if they have access to the measurements, let the user respond with things such as 'not sure' and 'i can do this when i meet you' return the response as a JSON object with two keys: 'message' which contains the message to the user, and 'end_conversation' which is true if the conversation is to be ended, false otherwise. Remember to end the conversation after providing suggestions and getting feedback. Provide the end trigger at the next message where the user provides their consent that they are ok with the suggestions privided by you."},,
+    {"role": "user", "content": "I am ready to find my perfect outfit!"}
     ]
 
     def build_input_from_history(history):
@@ -146,6 +147,17 @@ async def openai_start_outfit_flow(message):
         if user_input is False:
             break
         conversation_history.append({"role": "user", "content": user_input})
+
+    #return JSON summary of the conversation
+    conversation_history.append({"role": "user", "content": "Please provide a summary of our conversation in the following JSON format: {\"outfits\": \"<summary of the outfit suggestions and measurements discussed>\", \"size\": \"<summary of the size and measurements discussed, return as an array of different measurements as keys, if the user is not sure of their measurements or wants the seamstress to measure then, mark accordingly>\"}"})
+    response = groq.responses.create(
+        model="openai/gpt-oss-20b",
+        input=build_input_from_history(conversation_history)
+    )
+    raw_reply = response.output_text
+    parsed = json.loads(raw_reply)
+
+    print("FINAL SUMMARY:", parsed)
 
     await show_typing_and_send(message, "It was great having a chat with you! Feel free to reach out anytime for more fashion advice. Have a wonderful day!")
 
