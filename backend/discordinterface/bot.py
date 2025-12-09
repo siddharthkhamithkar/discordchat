@@ -1,3 +1,16 @@
+"""
+Built as a fuck-around-and-find-out project to learn about integrating GenAI with Chatbots.
+
+TODO:
+1. Profile validation logic
+2. Profile creation logic
+3. Message to Bot Owner/Log channel logic for user interactions
+4. Integration with MongoDB for info storage
+5. Integration with Google Sheets for data audit
+
+"""
+
+
 import asyncio
 from datetime import datetime
 import json
@@ -27,7 +40,7 @@ async def on_message(message):
         return
 
     if message.mentions:
-        #await userCreationFlow(message)
+        #await user_creation_flow(message)
         await openai_start_outfit_flow(message)
 
 #HELPER FUNCTIONS
@@ -50,9 +63,9 @@ async def get_user_reply(message):
         await message.channel.send("I didn’t get a response.")
         return False
 
-#USER CREATION FLOW
+#USER CREATION FLOW - to be re-done
 
-async def userCreationFlow(message):
+async def user_creation_flow(message):
     user_name = ""
     user_email = ""
     user_countrycode = ""
