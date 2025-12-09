@@ -124,7 +124,7 @@ async def openai_start_outfit_flow(message):
             input=build_input_from_history(conversation_history)
         )
         raw_reply = response.output_text
-        parsed = json.loads(raw)
+        parsed = json.loads(raw_reply)
 
 
         # Update history
