@@ -53,6 +53,11 @@ async def get_user_reply(message):
 #USER CREATION FLOW
 
 async def userCreationFlow(message):
+    user_name = ""
+    user_email = ""
+    user_countrycode = ""
+    user_phonenumber = ""
+    
     await show_typing_and_send(message, "Hello! Welcome to Napbot!")
     await show_typing_and_send(message, "We're excited to get to know you and create the most personalized clothing for you!")
     await show_typing_and_send(message, "To verify if we already know you, please provide us with your email ID")
