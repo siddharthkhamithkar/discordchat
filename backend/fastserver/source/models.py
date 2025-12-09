@@ -1,5 +1,5 @@
 from datetime import datetime, date
-from pydantic import BaseModel, validator
+from pydantic import BaseModel, field_validator
 
 
 class NameRequest(BaseModel):
@@ -8,7 +8,6 @@ class NameRequest(BaseModel):
 class UserCreateRequest(BaseModel):
     name: str
     email_id: str
-    @validator("dob", pre=True)
-    def parse_dob(cls, value):
-        # Convert "dd/mm/yyyy" -> date object
-        return datetime.strptime(value, "%d/%m/%Y").date()
+    @field_validator("dob", mode="before")
+    def parse_dob(cls, v):
+        return datetime.strptime(v, "%d/%m/%Y").date()
