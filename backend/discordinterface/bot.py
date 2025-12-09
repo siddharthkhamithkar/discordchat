@@ -13,7 +13,7 @@ intents.message_content = True
 
 client = discord.Client(intents=intents)
 
-API_URL = os.getenv('API_URL', 'http://localhost:8000/echo')
+API_URL = os.getenv('API_URL', 'http://localhost:8000/')
 
 @client.event
 async def on_ready():
@@ -64,7 +64,7 @@ async def userCreationFlow(message):
     try:
         async with aiohttp.ClientSession() as session:
             payload = {'name': user_name, 'email_id': user_email, 'dob': user_dob}
-            async with session.post(API_URL, json=payload) as response:
+            async with session.post(API_URL + "createUser", json=payload) as response:
                 if response.status == 200:
                     data = await response.json()
                     print(data)
