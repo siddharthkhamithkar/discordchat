@@ -47,7 +47,7 @@ async def get_user_reply(message):
         return reply.content
 
     except asyncio.TimeoutError:
-        await message.channel.send("I didn’t get a response. Let’s try again later!")
+        await message.channel.send("I didn’t get a response.")
         return False
 
 #USER CREATION FLOW
@@ -75,8 +75,7 @@ async def userCreationFlow(message):
         user_phonenumber = await get_user_reply(message)
 
     except asyncio.TimeoutError:
-        await message.channel.send('Timed out waiting for input. Please try again.')
-        return
+        pass
 
     try:
         async with aiohttp.ClientSession() as session:
