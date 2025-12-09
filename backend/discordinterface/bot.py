@@ -1,4 +1,5 @@
 import asyncio
+from datetime import datetime
 import os
 
 import aiohttp
@@ -56,6 +57,7 @@ async def userCreationFlow(message):
             check=lambda m: m.author == message.author and m.channel == message.channel,
         )
         user_dob = reply.content.strip()
+        converted_user_dob = datetime.strptime(user_dob, "%d/%m/%Y").date()
 
     except asyncio.TimeoutError:
         await message.channel.send('Timed out waiting for input. Please try again.')
@@ -63,7 +65,7 @@ async def userCreationFlow(message):
 
     try:
         async with aiohttp.ClientSession() as session:
-            payload = {'name': user_name, 'email_id': user_email, 'dob': user_dob}
+            payload = {'name': user_name, 'email_id': user_email, 'dob': converted_user_dob}
             async with session.post(API_URL + "createUser", json=payload) as response:
                 if response.status == 200:
                     data = await response.json()
