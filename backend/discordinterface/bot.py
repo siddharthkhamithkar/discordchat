@@ -128,18 +128,17 @@ async def openai_start_outfit_flow(message):
         # Call Groq API
         response = groq.responses.create(
             model="openai/gpt-oss-20b",
-            input=build_input_from_history(conversation_history),
-            response_format={"type": "json_object"}
+            input=build_input_from_history(conversation_history)
         )
 
         # Parse response, separate "messaage" from "end_conversation"
-        #raw_reply = response.output_text
-        #parsed = json.loads(raw_reply)
+        raw_reply = response.output_text
+        parsed = json.loads(raw_reply)
 
 
         # Update history
-        assistant_reply = response.get('message')
-        genai_trigger = not response.get('end_conversation')
+        assistant_reply = parsed.get('message')
+        genai_trigger = not parsed.get('end_conversation')
         conversation_history.append({"role": "assistant", "content": assistant_reply})
 
         await show_typing_and_send(message, f"{assistant_reply}")
