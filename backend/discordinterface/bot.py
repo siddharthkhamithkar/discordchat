@@ -30,7 +30,8 @@ async def on_message(message):
 
 async def userCreationFlow(message):
     await message.channel.send("Hello! Welcome to Napbot! \nWe're excited to get to know you and create the most personalized clothing for you!")
-    await asyncio.sleep(1)
+    async with message.typing():
+        await asyncio.sleep(1)
     await message.channel.send("Let's start with your name, what's your name?")
 
     try:
