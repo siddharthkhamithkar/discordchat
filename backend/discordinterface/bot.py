@@ -27,7 +27,8 @@ async def on_message(message):
         return
 
     if message.content.startswith('n!hello'):
-        await userCreationFlow(message)
+        #await userCreationFlow(message)
+        await openai_start_outfit_flow(message)
 
 #HELPER FUNCTIONS
 
