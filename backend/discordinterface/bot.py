@@ -29,7 +29,8 @@ async def on_message(message):
         await userCreationFlow(message)
 
 async def userCreationFlow(message):
-    await message.channel.send("Hello! What's your name?")
+    await message.channel.send("Hello! Welcome to Napbot! \n We're excited to get to know you and create the most personalized clothing for you!")
+    await message.channel.send("Let's start with your name, what's your name?")
 
     try:
        # Collect name
