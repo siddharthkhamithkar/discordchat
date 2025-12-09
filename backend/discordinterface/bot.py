@@ -1,10 +1,10 @@
 import asyncio
 from datetime import datetime
 import os
-
 import aiohttp
 import discord
 from dotenv import load_dotenv
+from openai import OpenAI
 
 # Load environment variables from .env file
 load_dotenv()
@@ -92,6 +92,51 @@ async def userCreationFlow(message):
     except Exception as exc:  # Log unexpected failures for debugging
         await message.channel.send('Failed to reach the API. Please try again later.')
         print(f'API error: {exc}')
+
+    await show_typing_and_send(message, .5, "Shall we get you the perfect outfit?")
+    if (message.content.lower() in ['yes', 'y', 'sure', 'yeah']):
+        await show_typing_and_send(message, 1, "Awesome! Let's get started on finding your perfect style!")
+        await openai_start_outfit_flow(message)
+
+async def openai_start_outfit_flow(message):
+
+    groq_api_key = os.getenv('GROQ_API_KEY')
+    if groq_api_key is None:
+        raise ValueError("GROQ_API_KEY environment variable is not set")
+    client = OpenAI(
+    base_url="https://api.groq.com/openai/v1",
+    )
+
+    conversation_history = [
+    {"role": "user", "content": "you are a helpful assistant that helps people find clothing styles that suit them best. You will ask them one liner questions, and base the rest of your questions based on their response. Ask one question at a time. Limit yourself to 5 questions before suggesting clothing. provide your suggestions in a concise manner as a oneliner. Get the user's feedback and act on it before closing the conversation"}
+    ]
+
+    def build_input_from_history(history):
+        conversation_text = ""
+        for msg in history:
+            conversation_text += f"{msg['role'].capitalize()}: {msg['content']}\n"
+        return conversation_text
+
+    while True:
+        # Call Groq API
+        response = client.responses.create(
+            model="openai/gpt-oss-20b",
+            input=build_input_from_history(conversation_history)
+        )
+        # Update history
+        assistant_reply = response.output_text
+        conversation_history.append({"role": "assistant", "content": assistant_reply})
+
+        await show_typing_and_send(message, .5, f"{assistant_reply}")
+        
+        reply = await client.wait_for(
+            'message',
+            timeout=30,
+            check=lambda m: m.author == message.author and m.channel == message.channel,
+        )
+        user_input = reply.content.strip() 
+        conversation_history.append({"role": "user", "content": user_input})
+
 
 discord_token = os.getenv('DISCORD_TOKEN')
 if discord_token is None:

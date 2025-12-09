@@ -1,2 +1,3 @@
 backend/discordinterface/.env
 backend/discordinterface/discordbotenv/
+backend/discordinterface/__pycache__/
