@@ -67,7 +67,7 @@ async def userCreationFlow(message):
             async with session.post(API_URL, json=payload) as response:
                 if response.status == 200:
                     data = await response.json()
-                    await message.channel.send(f"Thank you! Your information has been received.")
+                    await message.channel.send(f"Thank you! Your information has been received. User has been created with the following details:\nName: {data['name']}\nEmail ID: {data['email_id']}\nDOB: {data['dob']}")
                 else:
                     await message.channel.send(f"API call failed with status {response.status}")
     except Exception as exc:  # Log unexpected failures for debugging
