@@ -49,28 +49,18 @@ async def userCreationFlow(message):
         )
         user_email = reply.content.strip()
 
-        # Collect DOB
-        await message.channel.send("What's your date of birth? (dd/mm/yyyy)")
-        reply = await client.wait_for(
-            'message',
-            timeout=30,
-            check=lambda m: m.author == message.author and m.channel == message.channel,
-        )
-        user_dob = reply.content.strip()
-        converted_user_dob = datetime.strptime(user_dob, "%d/%m/%Y").date()
-
     except asyncio.TimeoutError:
         await message.channel.send('Timed out waiting for input. Please try again.')
         return
 
     try:
         async with aiohttp.ClientSession() as session:
-            payload = {'name': user_name, 'email_id': user_email, 'dob': converted_user_dob}
+            payload = {'name': user_name, 'email_id': user_email}
             async with session.post(API_URL + "createUser", json=payload) as response:
                 if response.status == 200:
                     data = await response.json()
                     print(data)
-                    await message.channel.send(f"Thank you! Your information has been received. \nName: {data['name']}\nEmail ID: {data['email_id']}\nDOB: {data['dob']}")
+                    await message.channel.send(f"Status: {data['status']}\nName: {data['name']}\nEmail ID: {data['email_id']}")
                 else:
                     await message.channel.send(f"API call failed with status {response.status}")
     except Exception as exc:  # Log unexpected failures for debugging
