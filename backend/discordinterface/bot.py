@@ -111,6 +111,7 @@ async def openai_start_outfit_flow(message):
     if groq_api_key is None:
         raise ValueError("GROQ_API_KEY environment variable is not set")
     client = OpenAI(
+    api_key=groq_api_key,
     base_url="https://api.groq.com/openai/v1",
     )
 
