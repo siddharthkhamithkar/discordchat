@@ -28,11 +28,14 @@ async def on_message(message):
     if message.content.startswith('n!hello'):
         await userCreationFlow(message)
 
-async def userCreationFlow(message):
-    await message.channel.send("Hello! Welcome to Napbot! \nWe're excited to get to know you and create the most personalized clothing for you!")
+async def show_typing_and_send(message, delay, message_content):
     async with message.channel.typing():
-        await asyncio.sleep(1)
-    await message.channel.send("Let's start with your name, what's your name?")
+        await asyncio.sleep(delay)
+    await message.channel.send(message_content)
+
+async def userCreationFlow(message):
+    await show_typing_and_send(message, 1, "Hello! Welcome to Napbot! \nWe're excited to get to know you and create the most personalized clothing for you!")
+    await show_typing_and_send(message, 1, "Let's start with your name, what's your name?")
 
     try:
        # Collect name
@@ -44,7 +47,7 @@ async def userCreationFlow(message):
         user_name = reply.content.strip()
 
         # Collect email
-        await message.channel.send("What's your email ID?")
+        await show_typing_and_send(message, 1, "What's your email ID?")
         reply = await client.wait_for(
             'message',
             timeout=30,
