@@ -15,4 +15,6 @@ def create_user(payload: UserCreateRequest):
         status="User created",
         name=payload.name,
         email_id=payload.email_id,
+        country_code=payload.country_code,
+        phone_number=payload.phone_number,
     )

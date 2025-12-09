@@ -34,8 +34,9 @@ async def show_typing_and_send(message, delay, message_content):
     await message.channel.send(message_content)
 
 async def userCreationFlow(message):
-    await show_typing_and_send(message, 1, "Hello! Welcome to Napbot! \nWe're excited to get to know you and create the most personalized clothing for you!")
-    await show_typing_and_send(message, 1, "Let's start with your name, what's your name?")
+    await show_typing_and_send(message, 1, "Hello! Welcome to Napbot!")
+    await show_typing_and_send(message, 1, "We're excited to get to know you and create the most personalized clothing for you!")
+    await show_typing_and_send(message, 1, "To verify if we already know you, please provide us with your email ID")
 
     try:
        # Collect name
@@ -44,16 +45,35 @@ async def userCreationFlow(message):
             timeout=30,
             check=lambda m: m.author == message.author and m.channel == message.channel,
         )
-        user_name = reply.content.strip()
+        user_email = reply.content.strip()
+        await show_typing_and_send(message, 1, "Please wait while we check...")
+        await show_typing_and_send(message, 1, "We do not have you in our records, let's get you set up!")
 
         # Collect email
-        await show_typing_and_send(message, 1, "What's your email ID?")
+        await show_typing_and_send(message, 1, "What's your name?")
         reply = await client.wait_for(
             'message',
             timeout=30,
             check=lambda m: m.author == message.author and m.channel == message.channel,
         )
-        user_email = reply.content.strip()
+        user_name = reply.content.strip()
+
+        # Collect Phone Number
+        await show_typing_and_send(message, 1, f"Great! Nice to meet you, {user_name}! What's your Country Code?")
+        reply = await client.wait_for(
+            'message',
+            timeout=30,
+            check=lambda m: m.author == message.author and m.channel == message.channel,
+        )
+        user_countrycode = reply.content.strip()
+
+        await show_typing_and_send(message, 1, "What's your Phone Number?")
+        reply = await client.wait_for(
+            'message',
+            timeout=30,
+            check=lambda m: m.author == message.author and m.channel == message.channel,
+        )
+        user_phonenumber = reply.content.strip()
 
     except asyncio.TimeoutError:
         await message.channel.send('Timed out waiting for input. Please try again.')
@@ -61,7 +81,7 @@ async def userCreationFlow(message):
 
     try:
         async with aiohttp.ClientSession() as session:
-            payload = {'name': user_name, 'email_id': user_email}
+            payload = {'name': user_name, 'email_id': user_email, 'country_code': user_countrycode, 'phone_number': user_phonenumber}
             async with session.post(API_URL + "createUser", json=payload) as response:
                 if response.status == 200:
                     data = await response.json()
