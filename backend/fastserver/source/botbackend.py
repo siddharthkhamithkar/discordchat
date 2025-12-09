@@ -11,4 +11,9 @@ def echo_name(payload: NameRequest):
 def create_user(payload: UserCreateRequest):
     # Placeholder implementation
     print(payload)
-    return {"status": "User created", "name": payload.name, "email_id": payload.email_id, "dob": payload.dob.strftime("%d/%m/%Y")}
+    return {
+    "status": "User created",
+    "name": payload.name,
+    "email_id": payload.email_id,
+    "dob": payload.dob.strftime("%d/%m/%Y")
+}
