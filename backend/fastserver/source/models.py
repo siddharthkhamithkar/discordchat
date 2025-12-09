@@ -8,6 +8,7 @@ class NameRequest(BaseModel):
 class UserCreateRequest(BaseModel):
     name: str
     email_id: str
+    dob: date
     @validator("dob", pre=True)
     def parse_dob(cls, v):
         # User inputs dd/mm/yyyy
