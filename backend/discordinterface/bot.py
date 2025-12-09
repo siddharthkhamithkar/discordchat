@@ -86,7 +86,7 @@ async def userCreationFlow(message):
                 if response.status == 200:
                     data = await response.json()
                     print(data)
-                    await message.channel.send(f"Status: {data['status']}\nName: {data['name']}\nEmail ID: {data['email_id']}")
+                    await show_typing_and_send(message, .5, f"You're all set! Welcome aboard, {data['name']}!")
                 else:
                     await message.channel.send(f"API call failed with status {response.status}")
     except Exception as exc:  # Log unexpected failures for debugging
