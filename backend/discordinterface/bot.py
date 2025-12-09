@@ -27,8 +27,8 @@ async def on_message(message):
         return
 
     if message.mentions:
-        await userCreationFlow(message)
-        #await openai_start_outfit_flow(message)
+        #await userCreationFlow(message)
+        await openai_start_outfit_flow(message)
 
 #HELPER FUNCTIONS
 
