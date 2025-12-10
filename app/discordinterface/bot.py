@@ -110,6 +110,8 @@ async def user_creation_flow(message):
                         await openai_start_outfit_flow(message)
                 else:
                     await message.channel.send(f"API call failed with status {response.status}")
+    except TimeoutError:
+        pass
     except Exception as exc:
         await message.channel.send('Failed to reach the API. Please try again later.')
         print(f'API error: {exc}')
