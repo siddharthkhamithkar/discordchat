@@ -2,3 +2,11 @@ app/.env
 app/discordinterface/discordbotenv/
 app/discordinterface/__pycache__/
 app/fastserver/source/
+app/fastserver/__pycache__/
+app/fastserver/api/__pycache__/
+app/fastserver/api/endpoint/__pycache__/
+app/fastserver/api/core/__pycache__/
+app/fastserver/api/models/__pycache__/
+app/fastserver/api/schemas/__pycache__/
+app/fastserver/api/utils/__pycache__/
+app/fastserver/source
