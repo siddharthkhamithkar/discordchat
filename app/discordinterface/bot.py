@@ -40,8 +40,8 @@ async def on_message(message):
         return
 
     if message.mentions:
-        #await user_creation_flow(message)
-        await openai_start_outfit_flow(message)
+        await user_creation_flow(message)
+        #await openai_start_outfit_flow(message)
 
 #HELPER FUNCTIONS
 
