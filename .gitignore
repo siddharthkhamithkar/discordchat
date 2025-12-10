@@ -1,3 +1,4 @@
-backend/discordinterface/.env
-backend/discordinterface/discordbotenv/
-backend/discordinterface/__pycache__/
+app/.env
+app/discordinterface/discordbotenv/
+app/discordinterface/__pycache__/
+app/fastserver/api/
