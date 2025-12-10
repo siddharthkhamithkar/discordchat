@@ -1,4 +1,4 @@
 app/.env
 app/discordinterface/discordbotenv/
 app/discordinterface/__pycache__/
-app/fastserver/api/
+app/fastserver/source/
