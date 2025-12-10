@@ -102,7 +102,7 @@ async def user_creation_flow(message):
                 if response.status == 200:
                     data = await response.json()
                     print(data)
-                    await show_typing_and_send(message, f"You're all set! Welcome aboard, {data['name']}!")
+                    await show_typing_and_send(message, f"You're all set! Welcome aboard, {user_name}!")
                     await show_typing_and_send(message, "Shall we get you the perfect outfit?")
                     user_input = await get_user_reply(message)
                     if user_input and user_input.lower() in ['yes', 'y', 'sure', 'yeah']:
