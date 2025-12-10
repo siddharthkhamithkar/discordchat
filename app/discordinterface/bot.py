@@ -28,7 +28,7 @@ intents.message_content = True
 
 discord_client = discord.Client(intents=intents)
 
-API_URL = os.getenv('API_URL', 'http://localhost:8000/')
+API_URL = os.getenv('API_URL', 'http://localhost:8000/api/')
 
 @discord_client.event
 async def on_ready():
@@ -60,8 +60,8 @@ async def get_user_reply(message):
         return reply.content
 
     except asyncio.TimeoutError:
-        await message.channel.send("I didn’t get a response.")
-        return False
+        await message.channel.send("I didn't get a response.")
+        raise TimeoutError("User did not respond in time.")
 
 #USER CREATION FLOW - to be re-done
 
@@ -73,17 +73,17 @@ async def user_creation_flow(message):
     
     await show_typing_and_send(message, "Hello! Welcome to Napbot!")
     await show_typing_and_send(message, "We're excited to get to know you and create the most personalized clothing for you!")
-    await show_typing_and_send(message, "To verify if we already know you, please provide us with your email ID")
-
     try:
-       # Collect name
-        user_email = await get_user_reply(message)
-        await show_typing_and_send(message, "Please wait while we check...")
-        await show_typing_and_send(message, "We do not have you in our records, let's get you set up!")
 
         # Collect email
+        await show_typing_and_send(message, "Let's start with your Email ID, what is it?")
+        user_email = await get_user_reply(message)
+
+       # Collect name
         await show_typing_and_send(message, "What's your name?")
         user_name = await get_user_reply(message)
+        await show_typing_and_send(message, "Please wait while we check...")
+        await show_typing_and_send(message, "We do not have you in our records, let's get you set up!")
 
         # Collect Phone Number
         await show_typing_and_send(message, f"Great! Nice to meet you, {user_name}! What's your Country Code?")
@@ -92,13 +92,13 @@ async def user_creation_flow(message):
         await show_typing_and_send(message, "What's your Phone Number?")
         user_phonenumber = await get_user_reply(message)
 
-    except asyncio.TimeoutError:
+    except TimeoutError:
         pass
 
     try:
         async with aiohttp.ClientSession() as session:
             payload = {'name': user_name, 'email_id': user_email, 'country_code': user_countrycode, 'phone_number': user_phonenumber}
-            async with session.post(API_URL + "createUser", json=payload) as response:
+            async with session.post(API_URL + "create_user", json=payload) as response:
                 if response.status == 200:
                     data = await response.json()
                     print(data)
