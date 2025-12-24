@@ -97,8 +97,6 @@ async def user_creation_flow(message):
        # Collect name
         await show_typing_and_send(message, "What's your name?")
         user_name = await get_user_reply(message)
-        await show_typing_and_send(message, "Please wait while we check...")
-        await show_typing_and_send(message, "We do not have you in our records, let's get you set up!")
 
         # Collect Phone Number
         await show_typing_and_send(message, f"Great! Nice to meet you, {user_name}! What's your Country Code?")
