@@ -126,7 +126,7 @@ async def user_creation_flow(message):
                         await show_typing_and_send(message, "Awesome! Let's get started on finding your perfect style!")
                         await openai_start_outfit_flow(message)
                 else:
-                    await message.channel.send(f"API call failed with status {response.status}")
+                    await message.channel.send(f"{response.content}")
     except TimeoutError:
         pass
     except Exception as exc:
