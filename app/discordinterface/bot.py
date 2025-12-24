@@ -94,7 +94,11 @@ async def user_creation_flow(message):
                 else:
                     await message.channel.send(f"API call failed with status {response.status}")
 
-       # Collect name
+        # User doesn't exist, proceed to collect more details
+
+        await show_typing_and_send(message, "Looks like you're new here! Let's get you set up.")
+
+        # Collect name
         await show_typing_and_send(message, "What's your name?")
         user_name = await get_user_reply(message)
 
