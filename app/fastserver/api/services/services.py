@@ -31,3 +31,13 @@ async def create_user(user_data: UserCreateRequest) -> str:
         return str(result.inserted_id)
     except DuplicateKeyError:
         raise HTTPException(status_code=400, detail="User with this email or phone already exists")
+    
+async def validate_user(email_id: str) -> bool:
+    collection = get_user_collection()
+    
+    # Check if user with given email exists
+    try:
+        user = collection.find_one({"email": email_id})
+        return True if user else False
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error validating user: {str(e)}")

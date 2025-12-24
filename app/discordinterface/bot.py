@@ -3,10 +3,8 @@ Built as a fuck-around-and-find-out project to learn about integrating GenAI wit
 
 TODO:
 1. Profile validation logic
-2. Profile creation logic
-3. Message to Bot Owner/Log channel logic for user interactions
-4. Integration with MongoDB for info storage
-5. Integration with Google Sheets for data audit
+2. Message to Bot Owner/Log channel logic for user interactions
+3. Integration with Google Sheets for data audit
 
 """
 
@@ -78,6 +76,24 @@ async def user_creation_flow(message):
         # Collect email
         await show_typing_and_send(message, "Let's start with your Email ID, what is it?")
         user_email = await get_user_reply(message)
+
+        # Validate email via API
+        await show_typing_and_send(message, "Please wait while we check...")
+        async with aiohttp.ClientSession() as session:
+            validate_payload = {'phone_number': user_email}
+            async with session.post(API_URL + "validate_user", json=validate_payload) as response:
+                if response.status == 200:
+                    is_valid = await response.json()
+                    if is_valid:
+                        await show_typing_and_send(message, "Great! We have you in our records already.")
+                        await show_typing_and_send(message, "Shall we get you the perfect outfit?")
+                        user_input = await get_user_reply(message)
+                        if user_input and user_input.lower() in ['yes', 'y', 'sure', 'yeah']:
+                            await show_typing_and_send(message, "Awesome! Let's get started on finding your perfect style!")
+                            await openai_start_outfit_flow(message)
+                        return
+                else:
+                    await message.channel.send(f"API call failed with status {response.status}")
 
        # Collect name
         await show_typing_and_send(message, "What's your name?")
