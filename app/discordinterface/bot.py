@@ -80,7 +80,7 @@ async def user_creation_flow(message):
         # Validate email via API
         await show_typing_and_send(message, "Please wait while we check...")
         async with aiohttp.ClientSession() as session:
-            validate_payload = {'phone_number': user_email}
+            validate_payload = {'email_id': user_email}
             async with session.post(API_URL + "validate_user", json=validate_payload) as response:
                 if response.status == 200:
                     is_valid = await response.json()
