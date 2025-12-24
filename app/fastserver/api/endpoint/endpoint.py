@@ -12,6 +12,7 @@ async def create_user_endpoint(payload: UserCreateRequest):
         entity_id = await create_user(payload)
         return entity_id
     except Exception as e:
+        print(e)
         raise HTTPException(status_code=500, detail=f"Unexpected error: {str(e)}")
     
 @app.post("/validate_user/", response_model=bool)
