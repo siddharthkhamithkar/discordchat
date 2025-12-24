@@ -11,6 +11,8 @@ async def create_user_endpoint(payload: UserCreateRequest):
     try:
         entity_id = await create_user(payload)
         return entity_id
+    except HTTPException:
+        raise
     except Exception as e:
         print(e)
         raise HTTPException(status_code=500, detail=f"Unexpected error: {str(e)}")
@@ -20,5 +22,8 @@ async def validate_user_endpoint(email_id: str):
     try:
         is_valid = await validate_user(email_id)
         return is_valid
+    except HTTPException:
+        raise
     except Exception as e:
+        print(e)
         raise HTTPException(status_code=500, detail=f"Unexpected error: {str(e)}")

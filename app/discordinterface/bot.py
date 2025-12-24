@@ -92,7 +92,9 @@ async def user_creation_flow(message):
                             await openai_start_outfit_flow(message)
                         return
                 else:
-                    await message.channel.send(f"API call failed with status {response.status}")
+                    error_data = await response.json()
+                    error_message = error_data.get('detail', 'Unknown error occurred')
+                    await message.channel.send(f"Error: {error_message}")
 
         # User doesn't exist, proceed to collect more details
 
@@ -126,7 +128,9 @@ async def user_creation_flow(message):
                         await show_typing_and_send(message, "Awesome! Let's get started on finding your perfect style!")
                         await openai_start_outfit_flow(message)
                 else:
-                    await message.channel.send(f"{response.content}")
+                    error_data = await response.json()
+                    error_message = error_data.get('detail', 'Unknown error occurred')
+                    await message.channel.send(f"Error: {error_message}")
     except TimeoutError:
         pass
     except Exception as exc:
