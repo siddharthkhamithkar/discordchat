@@ -2,14 +2,10 @@
 Built as a fuck-around-and-find-out project to learn about integrating GenAI with Chatbots.
 
 TODO:
-1. Profile validation logic
-2. Message to Bot Owner/Log channel logic for user interactions
-3. Integration with Google Sheets for data audit
-
+1. Message to Bot Owner/Log channel logic for user interactions
+2. Integration with Google Sheets for data audit
+3. Status of current order
 """
-
-
-import asyncio
 from datetime import datetime
 import json
 import os
@@ -17,6 +13,7 @@ import aiohttp
 import discord
 from dotenv import load_dotenv
 from openai import OpenAI
+from utils import show_typing_and_send, get_user_reply
 
 # Load environment variables from .env file
 load_dotenv()
@@ -41,26 +38,6 @@ async def on_message(message):
         await user_creation_flow(message)
         #await openai_start_outfit_flow(message)
 
-#HELPER FUNCTIONS
-
-async def show_typing_and_send(message, message_content):
-    async with message.channel.typing():
-        await asyncio.sleep(.3)
-    await message.channel.send(message_content)
-
-async def get_user_reply(message):
-    try:
-        reply = await discord_client.wait_for(
-            'message',
-            timeout=30,
-            check=lambda m: m.author == message.author and m.channel == message.channel,
-        )
-        return reply.content
-
-    except asyncio.TimeoutError:
-        await message.channel.send("I didn't get a response.")
-        raise TimeoutError("User did not respond in time.")
-
 #USER CREATION FLOW - to be re-done
 
 async def user_creation_flow(message):
@@ -75,7 +52,7 @@ async def user_creation_flow(message):
 
         # Collect email
         await show_typing_and_send(message, "Let's start with your Email ID, what is it?")
-        user_email = await get_user_reply(message)
+        user_email = await get_user_reply(message, discord_client)
 
         # Validate email via API
         await show_typing_and_send(message, "Please wait while we check...")
@@ -86,7 +63,7 @@ async def user_creation_flow(message):
                     if is_valid:
                         await show_typing_and_send(message, "Great! We have you in our records already.")
                         await show_typing_and_send(message, "Shall we get you the perfect outfit?")
-                        user_input = await get_user_reply(message)
+                        user_input = await get_user_reply(message, discord_client)
                         if user_input and user_input.lower() in ['yes', 'y', 'sure', 'yeah']:
                             await show_typing_and_send(message, "Awesome! Let's get started on finding your perfect style!")
                             await openai_start_outfit_flow(message)
@@ -102,14 +79,13 @@ async def user_creation_flow(message):
 
         # Collect name
         await show_typing_and_send(message, "What's your name?")
-        user_name = await get_user_reply(message)
+        user_name = await get_user_reply(message, discord_client)
 
         # Collect Phone Number
         await show_typing_and_send(message, f"Great! Nice to meet you, {user_name}! What's your Country Code?")
-        user_countrycode = await get_user_reply(message)
-
+        user_countrycode = await get_user_reply(message, discord_client)
         await show_typing_and_send(message, "What's your Phone Number?")
-        user_phonenumber = await get_user_reply(message)
+        user_phonenumber = await get_user_reply(message, discord_client)
 
     except TimeoutError:
         pass
@@ -123,7 +99,7 @@ async def user_creation_flow(message):
                     print(data)
                     await show_typing_and_send(message, f"You're all set! Welcome aboard, {user_name}!")
                     await show_typing_and_send(message, "Shall we get you the perfect outfit?")
-                    user_input = await get_user_reply(message)
+                    user_input = await get_user_reply(message, discord_client)
                     if user_input and user_input.lower() in ['yes', 'y', 'sure', 'yeah']:
                         await show_typing_and_send(message, "Awesome! Let's get started on finding your perfect style!")
                         await openai_start_outfit_flow(message)
@@ -192,7 +168,7 @@ async def openai_start_outfit_flow(message):
 
             await show_typing_and_send(message, f"{assistant_reply}")
             
-            user_input = await get_user_reply(message)
+            user_input = await get_user_reply(message, discord_client)
             if user_input is False:
                 break
             conversation_history.append({"role": "user", "content": user_input})
