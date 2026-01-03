@@ -37,7 +37,6 @@ async def on_message(message):
 
     if message.mentions:
         active_sessions[message.author.id] = {"step": 1}
-        await message.channel.send("Session started!")
         await user_creation_flow(message)
         #await openai_start_outfit_flow(message)
 
