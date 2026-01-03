@@ -178,7 +178,7 @@ async def openai_start_outfit_flow(message):
 
         if not genai_trigger:
             #return JSON summary of the conversation
-            conversation_history.append({"role": "user", "content": "Ignore the previously described JSON format. Please provide a summary of our conversation in the following JSON format: {\"outfit\": \"<summary of the outfit suggestions and measurements discussed>\", \"size\": \"<summary of the size and measurements discussed, return as an array of different measurements as keys, if the user is not sure of their measurements or wants the seamstress to measure then, mark accordingly>\"}"})
+            conversation_history.append({"role": "user", "content": "Ignore the previously described JSON format. Please provide a summary of our conversation in the following JSON format: {\"outfit\": \"<summary of the outfit suggestions and measurements discussed>\", \"size\": \"<summary of the size and measurements discussed, return as an array of different measurements as keys, if the user is not sure of their measurements or wants the seamstress to measure then, mark accordingly>\" \"status\": keep this as \"Pending\", since it is a new order\"}"})
             response = groq.responses.create(
                 model="openai/gpt-oss-20b",
                 input=build_input_from_history(conversation_history)
