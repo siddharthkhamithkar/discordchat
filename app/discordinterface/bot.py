@@ -13,10 +13,11 @@ import aiohttp
 import discord
 from dotenv import load_dotenv
 from openai import OpenAI
-from utils import show_typing_and_send, get_user_reply
+from utils import show_typing_and_send, get_user_reply, active_sessions
 
 # Load environment variables from .env file
 load_dotenv()
+
 
 intents = discord.Intents.default()
 intents.message_content = True
@@ -35,6 +36,8 @@ async def on_message(message):
         return
 
     if message.mentions:
+        active_sessions[message.author.id] = {"step": 1}
+        await message.channel.send("Session started!")
         await user_creation_flow(message)
         #await openai_start_outfit_flow(message)
 
@@ -57,7 +60,7 @@ async def user_creation_flow(message):
         # Validate email via API
         await show_typing_and_send(message, "Please wait while we check...")
         async with aiohttp.ClientSession() as session:
-            async with session.post(API_URL + "validate_user", params={'email_id': user_email}) as response:
+            async with session.post(API_URL + "validate_user", params={'email_id': str(user_email)}) as response:
                 if response.status == 200:
                     is_valid = await response.json()
                     if is_valid:
@@ -171,7 +174,7 @@ async def openai_start_outfit_flow(message):
             user_input = await get_user_reply(message, discord_client)
             if user_input is False:
                 break
-            conversation_history.append({"role": "user", "content": user_input})
+            conversation_history.append({"role": "user", "content": str(user_input)})
 
 
         if not genai_trigger:

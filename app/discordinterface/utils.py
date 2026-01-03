@@ -1,5 +1,7 @@
 import asyncio
 
+active_sessions = {}
+
 async def show_typing_and_send(message, message_content):
     async with message.channel.typing():
         await asyncio.sleep(.3)
@@ -16,4 +18,5 @@ async def get_user_reply(message, discord_client):
 
     except asyncio.TimeoutError:
         await message.channel.send("I didn't get a response.")
-        raise TimeoutError("User did not respond in time.")
+        if message.author.id in active_sessions:
+            del active_sessions[message.author.id]
